@@ -48,11 +48,11 @@ jobs:
           secure: true
           username: ${{ secrets.EMAIL_USER }}
           password: ${{ secrets.EMAIL_PASS }}
-          subject: " Python CI Success - ${{ github.repository }}"
-          to: ${{ secrets.EMAIL_TO }}
           from: ${{ secrets.EMAIL_USER }}
+          to: ${{ secrets.EMAIL_TO }}
+          subject: "Python CI Success - ${{ github.repository }}"
           body: |
-             Build & Test Passed for   ${{ github.repository }}
-               Commit: ${{ github.sha }}
-               Triggered by: ${{ github.actor }}
-
+            Build and test passed for repository: ${{ github.repository }}
+            Branch: ${{ github.ref_name }}
+            Commit: ${{ github.sha }}
+            Triggered by: ${{ github.actor }}
