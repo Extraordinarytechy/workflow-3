@@ -1,0 +1,58 @@
+name: Python CI with Email Notification
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install --upgrade pip
+
+      - name: Run unit tests
+        run: python -m unittest test_main.py
+
+      - name: Zip source on success
+        if: success()
+        run: |
+          mkdir output
+          cp main.py output/
+          cp test_main.py output/
+          zip -r build.zip output
+
+      - name: Upload build artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-zip
+          path: build.zip
+
+      - name: Notify Success Via Email
+        if: success()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.EMAIL_USER }}
+          password: ${{ secrets.EMAIL_PASS }}
+          subject: " Python CI Success - ${{ github.repository }}"
+          to: ${{ secrets.EMAIL_TO }}
+          from: ${{ secrets.EMAIL_USER }}
+          body: |
+             Build & Test Passed for   ${{ github.repository }}
+               Commit: ${{ github.sha }}
+               Triggered by: ${{ github.actor }}
+
